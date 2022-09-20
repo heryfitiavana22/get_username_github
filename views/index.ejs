@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>dev s1 test</title>
+    <style>
+        .select-country {
+            display: inline-flex;
+            flex-direction: column;
+            width: 150px;
+            margin-right: 10px;
+        }
+        .default-value {
+            width: 100%;
+            color: white;
+            background-color: black;
+            text-align: center;
+            border: 1px solid black;
+            cursor: pointer;
+        }
+        .country {
+            display: none;
+            flex-direction: column;
+            width: 100%;
+            background-color: gray;
+            border: 1px solid gray;
+        }
+        .country > span {
+            width: 100%;
+            text-align: center;
+            color: aliceblue;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+        .country > span:hover {
+            background-color: aliceblue;
+            color: gray;
+        }
+        .search {cursor: pointer;}
+        .list-user {
+            display: flex;
+            flex-direction: column;
+            margin: 20px 0;
+        }
+        .pagination {display: flex;}
+        .pagination > button {margin: 0 5px;}
+    </style>
+</head>
+<body>
+    <h1></h1>
+
+    <div class="select-country">
+        <span class="default-value" onclick="showCountry()">madagascar</span>
+        <div class="country">
+            <span onclick="setValue('madagascar')">madagascar</span>
+            <span onclick="setValue('france')">france</span>
+            <span onclick="setValue('russie')">russie</span>
+            <span onclick="setValue('royaume-uni')">royaume-uni</span>
+            <span onclick="setValue('norvège')">norvège</span>
+        </div>
+    </div>
+    <button class="search" onclick="getUser()">Rechercher</button>
+
+    <div class="list-user">
+        <span class="user"></span>
+    </div>
+
+    <div class="pagination">
+        <button onclick="setPage(1)">1</button>
+        <button onclick="setPage(2)">2</button>
+        <button onclick="setPage(3)">3</button>
+        <button onclick="setPage(4)">4</button>
+        <button onclick="setPage(5)">5</button>
+    </div>
+    <script>
+        let listCountry = document.querySelector('.country'),
+            h1 = document.querySelector('h1'),
+            defaultCountry = document.querySelector('.default-value'),
+            country = 'madagascar',// pays par defaut
+            listUser = document.querySelector('.list-user'),
+            page = 1;
+
+        function showCountry() {listCountry.style.display = 'flex'}
+        function hideCountry() {listCountry.style.display = 'none'}
+
+        function setValue(value) {
+            country = value;
+            defaultCountry.innerHTML = country
+        }
+
+        function displayUsers(users) {
+            listUser.innerHTML = ''
+            for(let element of users) {
+                let html = '<span class="user">'+element+'</span>';
+                listUser.insertAdjacentHTML('beforeend', html)
+            }
+        }
+
+        function setPage(value) {
+            page = value
+            getUser()
+        }
+
+        async function getUser() {
+            console.log(country);
+            console.log(page);
+            h1.innerHTML = 'En cours...'
+            fetch('/getUser', {
+                method : 'post',
+                headers : {'Content-type':'application/json'},
+                body : JSON.stringify({
+                    country : country,
+                    page : page
+                })
+            })
+                .then((response => response.json()))
+                .then((value) => {
+                    if(value.isError) {
+                        return h1.innerHTML = 'Error'
+                    }
+                    h1.innerHTML = 'resultats trouvés'
+                    console.log(value.value);
+                    let users = value.value.data.items.map(s => s.login)
+                    console.log(users);
+                    displayUsers(users)
+                })
+        }
+        getUser() 
+        
+        window.onclick = function(e) {
+            if( (!e.target.matches('.country') ) && (!e.target.matches('.default-value')) ) {
+                hideCountry()
+            }
+        }
+    </script>
+</body>
+</html>
