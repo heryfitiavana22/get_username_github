@@ -5,7 +5,7 @@ app.set('views', 'views');
 app.use(express.json())
 
 const {Octokit} = require('@octokit/core');
-const octokit = new Octokit({auth : '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'});
+const octokit = new Octokit({auth : 'yourtoken'});
 
 app.get('/', (request, response) => {
     response.status(200).render('index')
